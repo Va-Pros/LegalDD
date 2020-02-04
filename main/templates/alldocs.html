@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>Documents</title>
+</head>
+<body>
+    {% for document in documents %}
+       Type: {{ document.content_type }}<br/>
+       Uploaded by: {{ document.author }}<br/>
+       File: <a href=/documents/{{ document.file }}>{{ document.file }}</a></br>
+       <br/>
+    {% endfor %}
+    <a href="/upload">Upload new file</a><br/>
+    <a href={% url 'logout' %}>Logout</a>
+</body>
+</html>
