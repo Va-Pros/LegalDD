@@ -43,3 +43,11 @@ class Case(models.Model):
 
 class Rule(models.Model):
     name = models.CharField(max_length=100)
+    
+
+class Report(models.Model):
+    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='document_to_check')
+    templateDocument = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, blank=True, related_name='template')
+    templateProfile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True, related_name='template')
+    #TODO: поле для содержимого отчёта
