@@ -1,0 +1,16 @@
+<html>
+<head>
+    <title>Добавить пользователя</title>
+</head>
+<body>
+    <form action="." method="POST">
+        {% csrf_token %}
+        Username: <input type="text" name="username"/><br/>
+        Password: <input type="password" name="password"/><br/>
+        Repeat password: <input type="password" name="repeat"/><br/>
+        Is lawyer?: <input type="checkbox" name="is_lawyer"/><br/>
+        Is curator?: <input type="checkbox" name="is_curator"/><br/>
+        <input type="submit" value="Sumbit"/>
+    </form>
+</body>
+</html>
