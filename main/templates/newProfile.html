@@ -1,0 +1,27 @@
+<html>
+<head>
+    <title>
+    {% if creating %}
+        Новый профиль
+    {% else %}
+        Редактировать профиль
+    {% endif %}
+    </title>
+</head>
+<body>
+    <form action="." method="POST">
+        {% csrf_token %}
+        Название: <input type="text" name="name" value="{{ name }}"/><br/>
+        Правила:
+        {% for rule in profile_rules %}
+            {{ rule.name }}<br/>
+        {% endfor %}
+        <select name="rule">
+        {% for rule in rules %}
+            <option value="{{ rule.name }}">{{ rule.name }}</option>
+        {% endfor %}
+        </select><br/>
+        <input type="submit" value="Sumbit"/>
+    </form>
+</body>
+</html>
