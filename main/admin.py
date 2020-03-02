@@ -1,5 +1,5 @@
 from django.contrib import admin
-from main.models import Document, UserProfile, Rule
+from main.models import Document, UserProfile, Rule, Profile
 
 # Register your models here.
 @admin.register(Document)
@@ -20,6 +20,13 @@ class UserProfileAdmin(admin.ModelAdmin):
     
 @admin.register(Rule)
 class RuleAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
+        'author'
+    ]
+    
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
     list_display = [
         'name',
         'author'

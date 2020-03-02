@@ -41,6 +41,7 @@ class Rule(models.Model):
 class Profile(models.Model):
     name = models.CharField(max_length=100)
     author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    rules = models.ManyToManyField(Rule)
 
 
 class CaseType(models.Model):

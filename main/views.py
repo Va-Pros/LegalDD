@@ -73,7 +73,7 @@ def lk_view(request):
         {
             'user': user,
             'documents': Document.objects.all(),
-            'cases': []#Case.objects.filter(caseType.author=user),
+            'profiles': Profile.objects.filter(author=user),
         })
 
 def document_view(request, name):
@@ -104,6 +104,52 @@ class AddUser(View):
         profile.is_curator = (request.POST.get('is_curator') is not None)
         profile.save()
         return redirect('/adduser')
+
+class EditProfile(View):
+    def get(self, request):
+        user = get_object_or_404(UserProfile,
+                                 user=request.user)
+        if not user.is_lawyer:
+            return HttpResponseForbidden('Только юристы могут создавать и редактировать профили')
+        name = ""
+        creating = True
+        if request.GET.get('name') is not None:
+            profile = get_object_or_404(Profile,
+                                        author=user,
+                                        name=request.GET['name'])
+            name = profile.name
+            creating = False
+        return render(
+            request,
+            'newProfile.html',
+            {
+                'creating': creating,
+                'name': name,
+                'profile_rules': [],
+                'rules': Rule.objects.filter(author=user),
+            })
+    
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        user = get_object_or_404(UserProfile,
+                                 user=request.user)
+        if not user.is_lawyer:
+            return HttpResponseForbidden('Только юристы могут создавать и редактировать профили')
+        profileName = request.POST.get('name')
+        try:
+            print('Trying to get profile', profileName)
+            profile = Profile.objects.get(name=profileName)
+            print('Got profile', profile=name)
+            if profile.user != user:
+                return HttpRsponseForbidden('Данный профиль не принадлежит Вам')
+            profile.name = profileName
+            profile.save()
+        except:
+            # Профиль не найден, создаём новый
+            profile = Profile(author=user)
+            profile.name = profileName
+            profile.save()
+        return redirect('/')
     
 def admin_view(request):
     if not request.user.is_superuser:
