@@ -87,7 +87,7 @@ def document_view(request, name):
 class AddUser(View):
     def get(self, request):
         if not request.user.is_superuser:
-            return HttpResponseForbidden('Only admin can add users')
+            return HttpResponseForbidden('Access denied')
         return render(
             request,
             'adduser.html'
@@ -104,3 +104,11 @@ class AddUser(View):
         profile.is_curator = (request.POST.get('is_curator') is not None)
         profile.save()
         return redirect('/adduser')
+    
+def admin_view(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden('Access denied')
+    return render(
+        request,
+        'admin.html'
+    )
