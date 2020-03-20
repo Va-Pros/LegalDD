@@ -12,7 +12,7 @@
     {% if user.is_lawyer %}
         Мои профили:<br/>
         {% for profile in profiles %}
-            <a href="/profile/?name={{ profile.name }}">{{ profile.name }}</a><br/>
+            <a href="/profile/?id={{ profile.id }}">{{ profile.name }}</a><br/>
         {% endfor %}
         <a href=/profile>Добавить</a><br/>
     {% endif %}

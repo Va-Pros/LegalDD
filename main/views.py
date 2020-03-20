@@ -39,7 +39,7 @@ class LoginView(View):
             if user is not None:
                 login(request, user)
                 return redirect('/')
-            return HttpResponseBadRequest('Login or password incorrect')
+            return HttpResponseBadRequest('Неверный логин или пароль')
         return redirect('/')
     
 
@@ -53,7 +53,7 @@ class UploadDocument(View):
     def post(self, request):
         form = UploadFileForm(request.POST, request.FILES)
         if not form.is_valid():
-            return HttpResponseBadRequest('File could not be loaded')
+            return HttpResponseBadRequest('Не удалось загрузить файл')
         file = form.save(commit=False)
         file.author = request.user
         file.content_type = request.FILES.getlist('file')[0].content_type
@@ -79,7 +79,7 @@ def lk_view(request):
 def document_view(request, name):
     file = Document.objects.get(file=name)
     if not (request.user.is_superuser or request.user == file.author):
-        return HttpResponseForbidden('You are not allowed to view this file')
+        return HttpResponseForbidden('Вы не имеете доступ к данному файлу')
     response = HttpResponse("", file.content_type)
     response['Content-Disposition'] = 'attachment; filename="' + file.file.name + '"'
     return response
@@ -87,7 +87,7 @@ def document_view(request, name):
 class AddUser(View):
     def get(self, request):
         if not request.user.is_superuser:
-            return HttpResponseForbidden('Access denied')
+            return HttpResponseForbidden('Доступ запрещён')
         return render(
             request,
             'adduser.html'
@@ -96,7 +96,7 @@ class AddUser(View):
     @method_decorator(csrf_protect)
     def post(self, request):
         if request.POST['password'] != request.POST['repeat']:
-            return HttpResponseBadRequest('Passwords do not match')
+            return HttpResponseBadRequest('Пароли не совпадают')
         user = User.objects.create_user(request.POST['username'], password=request.POST['password'])
         user.save()
         profile = UserProfile(user=user)
@@ -111,23 +111,33 @@ class EditProfile(View):
                                  user=request.user)
         if not user.is_lawyer:
             return HttpResponseForbidden('Только юристы могут создавать и редактировать профили')
-        name = ""
-        creating = True
-        if request.GET.get('name') is not None:
+        if request.GET.get('id') is not None:
             profile = get_object_or_404(Profile,
                                         author=user,
-                                        name=request.GET['name'])
-            name = profile.name
-            creating = False
-        return render(
-            request,
-            'newProfile.html',
-            {
-                'creating': creating,
-                'name': name,
-                'profile_rules': [],
-                'rules': Rule.objects.filter(author=user),
-            })
+                                        id=request.GET['id'])
+            print(*profile.rules.all())
+            print(profile.rules.count())
+            return render(
+                request,
+                'newProfile.html',
+                {
+                    'id': profile.id,
+                    'name': profile.name,
+                    'profile_rules': profile.rules.all(),
+                    'profile_rule_count': profile.rules.count(),
+                    'rules': Rule.objects.filter(author=user),
+                })
+        else:
+            return render(
+                request,
+                'newProfile.html',
+                {
+                    'id': -1,
+                    'name': "",
+                    'profile_rules': [],
+                    'profile_rule_count': 0,
+                    'rules': Rule.objects.filter(author=user),
+                })                
     
     @method_decorator(csrf_protect)
     def post(self, request):
@@ -135,20 +145,34 @@ class EditProfile(View):
                                  user=request.user)
         if not user.is_lawyer:
             return HttpResponseForbidden('Только юристы могут создавать и редактировать профили')
-        profileName = request.POST.get('name')
-        try:
-            print('Trying to get profile', profileName)
-            profile = Profile.objects.get(name=profileName)
-            print('Got profile', profile=name)
-            if profile.user != user:
-                return HttpRsponseForbidden('Данный профиль не принадлежит Вам')
-            profile.name = profileName
-            profile.save()
-        except:
-            # Профиль не найден, создаём новый
+        # Считаем правила из запроса и проверим их наличие
+        rule_count = request.POST.get('rule_count')
+        if rule_count is None:
+            return HttpResponseBadRequest('Не указано количество правил.')
+        rules = []
+        for i in range(1, int(rule_count) + 1):
+            rule = request.POST.get('rule' + str(i))
+            if rule is None:
+                return HttpResponseBadRequest('Указано слишком маленькое количество правил.')
+            rule = get_object_or_404(Rule,
+                                     author=user,
+                                     name=rule)
+            rules.append(rule)
+        # Заполним значения модели и сохраним
+        profile_id = request.POST.get('profile_id')
+        if profile_id is not None:
+            profile = get_object_or_404(Profile,
+                                        id=profile_id,
+                                        author=user)
+        else:
             profile = Profile(author=user)
-            profile.name = profileName
-            profile.save()
+        profileName = request.POST.get('name')
+        if profileName is None:
+            return HttpResponseBadRequest('Не указан параметр name.')
+        profile.name = profileName
+        profile.save()
+        profile.rules.set(rules)
+        profile.save()
         return redirect('/')
     
 def admin_view(request):

@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>
-    {% if creating %}
+    {% if id == -1 %}
         Новый профиль
     {% else %}
         Редактировать профиль
@@ -25,16 +25,29 @@
         Название: <input type="text" name="name" value="{{ name }}"/><br/>
         Правила:
         <div id="rules">
+            <input type="hidden" name="rule_count" value="{{ profile_rule_count }}"/>
             {% for rule in profile_rules %}
-                {{ rule.name }}<br/>
+                <select name="rule{{ forloop.counter }}">
+                    {% for rule2 in rules %}
+                        {% if rule == rule2 %}
+                            <option selected value="{{ rule2.name }}">{{ rule2.name }}</option>
+                        {% else %}
+                            <option value="{{ rule2.name }}">{{ rule2.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select><br/>
             {% endfor %}
         </div>
         <select id="new_rule" onchange=foo()>
             {% for rule in rules %}
                 <option value="{{ rule.name }}">{{ rule.name }}</option>
             {% endfor %}
+            <option value="" selected></option>
         </select><br/>
-        <input type="submit" value="Sumbit"/>
+        {% if id != -1 %}
+            <input type=hidden name="profile_id" value="{{ id }}"/>
+        {% endif %}
+        <input type="submit" value="Сохранить"/>
     </form>
 </body>
 </html>

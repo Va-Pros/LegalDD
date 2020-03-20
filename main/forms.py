@@ -1,7 +1,7 @@
 from django.forms import Form, ModelForm
 from django.contrib.auth.models import User
 
-from main.models import Document, UserProfile
+from main.models import Document, Profile
 
 class UploadFileForm(ModelForm):
     class Meta:
