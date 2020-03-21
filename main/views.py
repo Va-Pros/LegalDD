@@ -115,8 +115,6 @@ class EditProfile(View):
             profile = get_object_or_404(Profile,
                                         author=user,
                                         id=request.GET['id'])
-            print(*profile.rules.all())
-            print(profile.rules.count())
             return render(
                 request,
                 'newProfile.html',
