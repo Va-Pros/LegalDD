@@ -1,27 +1,90 @@
 <html>
-<head>
+<head><meta charset="utf-8">
     <title>
-    {% if creating %}
+    {% if id == -1 %}
         Новый профиль
     {% else %}
         Редактировать профиль
     {% endif %}
     </title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static "style/mainstyle.css" %}">
+    <link rel="stylesheet" href="{% static "style/newProfile.css" %}">
+    <script src="{% static "scripts/jqery.js" %}"></script>
+    <script src="{% static "scripts/uploader.js" %}"></script>
+    <script src="{% static "scripts/print_story.js" %}"></script>
+    <script>
+        var rule_count = {{ profile_rule_count }};
+
+        function func() {
+            try {
+                ++rule_count;
+                var rule_name = 'rule' + rule_count;
+                var new_item = '<select name="' + rule_name + '" id="' + rule_name + '">\n' +
+                    '   {% for rule in rules %}\n' +
+                    '       <option value="{{ rule.name }}">{{ rule.name }}</option>'+
+                    '   {% endfor %}\n' +
+                    '</select><br/>\n';
+                console.log(new_item);
+                localStorage.setItem((localStorage.length + 1), (new_item));
+
+                document.getElementById('rules').innerHTML += new_item;//localStorage.getItem(localStorage.length - 1) ;
+                selector = document.getElementById('new_rule');
+                added_selector = document.getElementById(rule_name);
+                added_selector.value = selector.value;
+                selector.value = "";
+                counter = document.getElementById('rule_count');
+                counter.value = rule_count;
+            }catch (error) {
+                alert(error);
+            }
+
+        }
+
+        function foo()
+        {
+            let selector = document.getElementById('new_rule');
+            let selected_rule = selector.value;
+            let rules = document.getElementById('rules');
+            console.log(rules.innerHTML);
+            rules.innerHTML = '<a href="test">test</a>';
+            
+        }
+    </script>
 </head>
 <body>
-    <form action="." method="POST">
+    <form action="." method="POST" id="my_form">
         {% csrf_token %}
         Название: <input type="text" name="name" value="{{ name }}"/><br/>
         Правила:
-        {% for rule in profile_rules %}
-            {{ rule.name }}<br/>
-        {% endfor %}
-        <select name="rule">
-        {% for rule in rules %}
-            <option value="{{ rule.name }}">{{ rule.name }}</option>
-        {% endfor %}
+        <div id="rules">
+            <input type="hidden" id="rule_count" name="rule_count" value="{{ profile_rule_count }}"/>
+            {% for rule in profile_rules %}
+                <select name="rule{{ forloop.counter }}">
+                    {% for rule2 in rules %}
+                        {% if rule == rule2 %}
+                            <option selected value="{{ rule2.name }}">{{ rule2.name }}</option>
+                        {% else %}
+                            <option value="{{ rule2.name }}">{{ rule2.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select><br/>
+            {% endfor %}
+        </div>
+
+
+
+        <br/><br/>
+        <select id="new_rule" onchange=func() >
+            {% for rule in rules %}
+                <option value="{{ rule.name }}">{{ rule.name }}</option>
+            {% endfor %}
+            <option value="" selected></option>
         </select><br/>
-        <input type="submit" value="Sumbit"/>
+        {% if id != -1 %}
+            <input type=hidden name="profile_id" value="{{ id }}"/>
+        {% endif %}
+        <input type="submit" value="Сохранить"/>
     </form>
 </body>
 </html>

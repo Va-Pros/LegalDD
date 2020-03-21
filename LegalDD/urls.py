@@ -29,4 +29,6 @@ urlpatterns = [
     path('documents/<str:name>/', login_required(document_view)),
     path('adduser/', login_required(AddUser.as_view())),
     path('demo/', login_required(DemoView.as_view())),
+    path('profile/', login_required(EditProfile.as_view())),
+    path('admin_urls/', login_required(admin_view)),
 ]

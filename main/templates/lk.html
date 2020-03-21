@@ -31,11 +31,13 @@
     {% for document in documents %}
         <a href=/documents/{{ document.file }}>{{ document.file }}</a><br/>
     {% endfor %}
+    <a href=/upload>Загрузить документ</a><br/>
     {% if user.is_lawyer %}
-        Мои кейсы<br/>
-        {% for case in cases %}
-            <a href=/>{{ case.name }}</a><br/>
+        Мои профили:<br/>
+        {% for profile in profiles %}
+            <a href="/profile/?id={{ profile.id }}">{{ profile.name }}</a><br/>
         {% endfor %}
+        <a href=/profile>Добавить</a><br/>
     {% else %}
         <a href=/demo>Проверить ИНН</a><br/>
     {% endif %}
