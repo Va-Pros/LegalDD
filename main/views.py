@@ -11,6 +11,7 @@ from main.templates import *
 from main.forms import *
 from main.models import *
 from LegalDD.settings import MEDIA_ROOT
+from core.DownloadPDF import downloadPDF
 
 class HelloView(View):
     def get(self, request):
@@ -104,3 +105,19 @@ class AddUser(View):
         profile.is_curator = (request.POST.get('is_curator') is not None)
         profile.save()
         return redirect('/adduser')
+
+
+class DemoView(View):
+    def get(self, request):
+        return render(
+            request,
+            'demo.html'
+        )
+    
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        ogrn = request.POST.get('data')
+        if ogrn is None:
+            return HttpResponseBadRequest('Не указано значение')
+        downloadPDF(int(ogrn))
+        return redirect('/demo')
