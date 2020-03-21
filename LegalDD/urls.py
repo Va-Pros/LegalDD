@@ -28,4 +28,6 @@ urlpatterns = [
     path('upload/', login_required(UploadDocument.as_view())),
     path('documents/<str:name>/', login_required(document_view)),
     path('adduser/', login_required(AddUser.as_view())),
+    path('profile/', login_required(EditProfile.as_view())),
+    path('admin_urls/', login_required(admin_view)),
 ]

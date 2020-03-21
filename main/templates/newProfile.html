@@ -1,0 +1,71 @@
+<html>
+<head><meta charset="utf-8">
+    <title>
+    {% if creating %}
+        Новый профиль
+    {% else %}
+        Редактировать профиль
+    {% endif %}
+    </title>
+    <link rel="stylesheet" href="../style/mainstyle.css">
+    <link rel="stylesheet" href="../style/newProfile.css">
+    <script src="../scripts/jqery.js"></script>
+    <script src="../scripts/uploader.js"></script>
+    <script src="../scripts/print_story.js"></script>
+    <script>
+
+        function func() {
+            try {
+                localStorage.setItem((localStorage.length + 1), (
+                    '<select id="new_rule" onchange=func()>\n' +
+                    '            {% for rule in rules %}\n' +
+                    '                <option value="{{ rule.name }}">{{ rule.name }}</option>'+
+                    '<option value="{{ rule.name }}">{{ rule.name }}</option>'+
+                    '            {% endfor %}\n' +
+                    '        </select><br><br>\n'));
+
+                document.getElementById('input_text').innerHTML += localStorage.getItem(localStorage.length - 1)
+                    + '<div id="input_text"></div>';
+            }catch (error) {
+                alert(error);
+            }
+
+        }
+
+        function foo()
+        {
+            let selector = document.getElementById('new_rule');
+            let selected_rule = selector.value;
+            let rules = document.getElementById('rules');
+            console.log(rules.innerHTML);
+            rules.innerHTML = '<a href="test">test</a>';
+            
+        }
+    </script>
+</head>
+<body>
+    <form action="." method="POST" id="my_form">
+        {% csrf_token %}
+        Название: <input type="text" name="name" value="{{ name }}"/><br/>
+        Правила:
+        <div id="rules">
+            {% for rule in profile_rules %}
+                {{ rule.name }}<br/>
+            {% endfor %}
+        </div>
+
+
+
+
+        <select id="new_rule" onchange=func() >
+            {% for rule in rules %}
+                <option value="{{ rule.name }}">{{ rule.name }}</option>
+                <option value="{{ rule.name }}">{{ rule.name }}</option>
+            {% endfor %}
+        </select><br/><br>
+        <div id="input_text"></div>
+        <input type="submit" value="Sumbit"/>
+
+    </form>
+</body>
+</html>
