@@ -7,11 +7,12 @@
         Редактировать профиль
     {% endif %}
     </title>
-    <link rel="stylesheet" href="../style/mainstyle.css">
-    <link rel="stylesheet" href="../style/newProfile.css">
-    <script src="../scripts/jqery.js"></script>
-    <script src="../scripts/uploader.js"></script>
-    <script src="../scripts/print_story.js"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static "style/mainstyle.css" %}">
+    <link rel="stylesheet" href="{% static "style/newProfile.css" %}">
+    <script src="{% static "scripts/jqery.js" %}"></script>
+    <script src="{% static "scripts/uploader.js" %}"></script>
+    <script src="{% static "scripts/print_story.js" %}"></script>
     <script>
         var rule_count = {{ profile_rule_count }};
 
