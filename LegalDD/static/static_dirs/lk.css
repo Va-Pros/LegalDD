@@ -1,0 +1,50 @@
+*{
+    margin: 0;
+}
+header{
+    width: 100%;
+    background: #C4C4C4;
+    height: 54px;
+}
+
+#photo{
+    list-style: none;
+    position: absolute;
+    right: 30px;
+    width: 50px; /* поддерживаются любые единицы, в том числе проценты */
+    margin: 2px auto;
+    background: #FFFFFF;
+    border-radius: 50%;
+}
+
+
+#photo::before {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    padding-top: 100%;
+}
+
+.button{
+    text-decoration: none;
+    background: #D0D0D0;
+    text-decoration: none;
+    width: 8em;
+    height: 3em;
+    border: 0;
+    transition: .2s ease-in-out;
+    outline: 0;
+}
+.button:hover {
+    background: #5F5F5F;
+}
+
+.button:active {
+    background: #FFFFFF;
+}
+
+#left_table{
+    margin-left: auto;
+    border: 0;
+    cellspacing: 0;
+}

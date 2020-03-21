@@ -1,9 +1,10 @@
 <html>
 <head>
 <meta charset="utf-8">
+    {% load static %}
     <title>Личный кабинет</title>
-    <link rel="stylesheet" href="../style/mainstyle.css">
-    <link rel="stylesheet" href="../style/lk.css">
+    <link rel="stylesheet" href="{% static "mainstyle.css" %}">
+    <link rel="stylesheet" href="{% static "lk.css" %}">
 </head>
 <body>
     <div id = "wrap">
@@ -12,9 +13,18 @@
         </header>
     </div>
     <div id = "left_buttons">
-        <button type="submit" value="submit" class="button">Профиль</button>
-        <br>
-        <button type="submit" value="submit" class="button">Вход</button>
+        <table id="left_table">
+            <tr>
+                <td>
+                    <button type="submit" value="submit" class="button">Профиль</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit" value="submit" class="button">Вход</button>
+                </td>
+            </tr>
+        </table>
     </div>
     {{ user.user.login }}<br/>
     Документы:<br/>
