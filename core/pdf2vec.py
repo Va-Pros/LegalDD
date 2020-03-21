@@ -12,10 +12,17 @@ from nltk.corpus import stopwords
 from pymystem3 import Mystem
 from string import punctuation
 
-mystem = Mystem()
-russian_stopwords = stopwords.words("russian")
+def pdfToVec(pdf_path):
+	text = preprocess_text(extract_text_from_pdf(pdf_path))
+	cores = multiprocessing.cpu_count()
+	arrWords = text.split()
+	w2v_model = Word2Vec([arrWords], min_count = 1, size = 300, workers = cores - 1)
+	return w2v_model.wv[arrWords].mean(axis = 0)
+
 
 def preprocess_text(text):
+	mystem = Mystem()
+	russian_stopwords = stopwords.words("russian")
 	tokens = mystem.lemmatize(text.lower())
 	tokens = [token for token in tokens if token not in russian_stopwords\
 	and token != " " \
@@ -34,15 +41,7 @@ def extract_text_from_pdf(pdf_path):
 			page_interpreter.process_page(page)
 
 	text = fake_file_handle.getvalue()
-
 	converter.close()
 	fake_file_handle.close()
-
 	if text:
 		return text
-
-text = preprocess_text(extract_text_from_pdf('w.pdf'))
-cores = multiprocessing.cpu_count()
-arrWords = text.split()
-w2v_model = Word2Vec([arrWords], min_count = 1, size = 300, workers = cores - 1)
-print(w2v_model.wv[arrWords].mean(axis = 0))
