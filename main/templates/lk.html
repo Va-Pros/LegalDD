@@ -1,41 +1,20 @@
 <html>
 <head>
-<meta charset="utf-8">
-    {% load static %}
     <title>Личный кабинет</title>
-    <link rel="stylesheet" href="{% static "mainstyle.css" %}">
-    <link rel="stylesheet" href="{% static "lk.css" %}">
 </head>
 <body>
-    <div id = "wrap">
-        <header>
-            <div id = "photo"></div>
-        </header>
-    </div>
-    <div id = "left_buttons">
-        <table id="left_table">
-            <tr>
-                <td>
-                    <button type="submit" value="submit" class="button">Профиль</button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button type="submit" value="submit" class="button">Вход</button>
-                </td>
-            </tr>
-        </table>
-    </div>
-    {{ user.user.login }}<br/>
+    {{ user.user.username }}<br/>
     Документы:<br/>
     {% for document in documents %}
         <a href=/documents/{{ document.file }}>{{ document.file }}</a><br/>
     {% endfor %}
+    <a href=/upload>Загрузить документ</a><br/>
     {% if user.is_lawyer %}
-        Мои кейсы<br/>
-        {% for case in cases %}
-            <a href=/>{{ case.name }}</a><br/>
+        Мои профили:<br/>
+        {% for profile in profiles %}
+            <a href="/profile/?name={{ profile.name }}">{{ profile.name }}</a><br/>
         {% endfor %}
+        <a href=/profile>Добавить</a><br/>
     {% endif %}
     <a href={% url 'logout' %}>Logout</a>
 </body>

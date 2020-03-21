@@ -1,0 +1,54 @@
+input[type=text] {
+	border-radius: 4px;
+	width: 250px; 
+	height: 30px;
+  background-color: #ffffff;
+  color: black;
+}
+input[type=password] {
+	border-radius: 4px;
+	width: 250px; 
+	height: 30px;
+  background-color: #ffffff;
+  color: black;
+}
+
+#log {
+	position: absolute;
+	top: 50%;
+    left: 50%;
+	transform: translate(-50%, -50%)
+}
+
+#reg_div{
+}
+
+#but{
+	color: #ffffff;
+	text-decoration: none;
+	user-select: none; 
+	background: #1471B8; 
+	padding: .7em 1.5em;
+	outline: none;
+	text-align: center;
+	text-decoration: none;
+	width: 8em;
+	height: 3em;
+	vertical-align: middle;
+	border: 1px solid rgba(0,0,0,.4);
+	border-top-color: rgba(0,0,0,.3);
+	border-radius: 2px;
+	box-shadow:
+   0 0 3px rgba(0,0,0,0) inset,
+   0 1px 1px 1px rgba(255,255,255,.2),
+   0 -1px 1px 1px rgba(0,0,0,0);
+  transition: .2s ease-in-out;
+}
+
+#but:hover { 
+	background: #5F5F5F; 
+} 
+
+#but:active { 
+	background: #FFFFFF;
+}
