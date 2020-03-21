@@ -1,8 +1,21 @@
 <html>
 <head>
+<meta charset="utf-8">
     <title>Личный кабинет</title>
+    <link rel="stylesheet" href="../style/mainstyle.css">
+    <link rel="stylesheet" href="../style/lk.css">
 </head>
 <body>
+    <div id = "wrap">
+        <header>
+            <div id = "photo"></div>
+        </header>
+    </div>
+    <div id = "left_buttons">
+        <button type="submit" value="submit" class="button">Профиль</button>
+        <br>
+        <button type="submit" value="submit" class="button">Вход</button>
+    </div>
     {{ user.user.login }}<br/>
     Документы:<br/>
     {% for document in documents %}

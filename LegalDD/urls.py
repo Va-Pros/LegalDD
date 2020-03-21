@@ -21,11 +21,4 @@ from main.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', login_required(lk_view)),
-    path('', RedirectView.as_view(url='login')),
-    path('accounts/login/', LoginView.as_view(), name='login'),
-    path('accounts/logout/', logout_view, name='logout'),
-    path('upload/', login_required(UploadDocument.as_view())),
-    path('documents/<str:name>/', login_required(document_view)),
-    path('adduser/', login_required(AddUser.as_view())),
 ]
