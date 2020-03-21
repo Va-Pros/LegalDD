@@ -1,0 +1,7 @@
+body{
+    background-color: #E0E0E0; /* Цвет фона веб-страницы */
+} 
+a{
+	text-decoration: none;
+}
+a:hover {text-decoration: underline;}
