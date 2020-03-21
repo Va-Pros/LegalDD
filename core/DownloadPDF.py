@@ -1,4 +1,4 @@
-from os import path
+import os
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -27,7 +27,8 @@ def downloadPDF(OGRN):
     options.add_argument('headless')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     driver = webdriver.Chrome('.\\Chrome Driver\\chromedriver.exe', options = options)
-    download_path = path.dirname(path.realpath(__file__))
+    download_path = os.path.dirname(os.path.realpath(__file__))
+    download_path += ".\\Download Files"
     enable_download_in_headless_chrome(driver, download_path)
     driver.get("https://egrul.nalog.ru/index.html")
     elem = driver.find_element_by_id("query")
@@ -35,19 +36,34 @@ def downloadPDF(OGRN):
     elem = driver.find_element_by_id("btnSearch")
     elem.click()
     elem = None
+    count_before = getCountPDF(download_path)
     try:
         elem = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "op-excerpt"))
         )
     except TimeoutException:
+      driver.close()
       return False
     if not (elem is None):
         elem.click()
-    time.sleep(5)# ИСПРАВИТЬ!
+    t = 0
+    while(t < 10 and len):
+        t += 0.05
+        time.sleep(0.05)
+        if(getCountPDF(download_path) > count_before):
+            break
+    if(t >= 10):
+        driver.close()
+        return False
     driver.close()
     return True
+def getCountPDF(path):
+    count = 0
+    for file in os.listdir(path):
+        if file.endswith('.pdf'):
+            count += 1
+    return count
 
-downloadPDF(1177746582298)
 
 
 
