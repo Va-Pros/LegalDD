@@ -12,8 +12,10 @@ from main.forms import *
 from main.models import *
 from LegalDD.settings import MEDIA_ROOT
 from core.DownloadPDF import downloadPDF
+from main.logger import *
 
 class HelloView(View):
+    @method_decorator(log_get_params)
     def get(self, request):
         return render(
             request,
@@ -25,12 +27,14 @@ class HelloView(View):
 
 
 class LoginView(View):
+    @method_decorator(log_get_params)
     def get(self, request):
         return render(
             request,
             'login.html'
         )
     
+    @method_decorator(log_post_params)
     @method_decorator(csrf_protect)
     def post(self, request):
         if request.user.is_anonymous:
@@ -45,12 +49,14 @@ class LoginView(View):
     
 
 class UploadDocument(View):
+    @method_decorator(log_get_params)
     def get(self, request):
         return render(
             request,
             'upload.html'
         )
     
+    @method_decorator(log_post_params)
     def post(self, request):
         form = UploadFileForm(request.POST, request.FILES)
         if not form.is_valid():
@@ -62,10 +68,12 @@ class UploadDocument(View):
         return redirect('/')
 
 
+@log_post_params
 def logout_view(request):
     logout(request)
     return redirect('/')
 
+@log_get_params
 def lk_view(request):
     user = UserProfile.objects.get(user=request.user)
     return render(
@@ -86,6 +94,7 @@ def document_view(request, name):
     return response
 
 class AddUser(View):
+    @method_decorator(log_get_params)
     def get(self, request):
         if not request.user.is_superuser:
             return HttpResponseForbidden('Доступ запрещён')
@@ -94,6 +103,7 @@ class AddUser(View):
             'adduser.html'
         )
     
+    @method_decorator(log_post_params)
     @method_decorator(csrf_protect)
     def post(self, request):
         if request.POST['password'] != request.POST['repeat']:
@@ -107,12 +117,14 @@ class AddUser(View):
         return redirect('/adduser')
 
 class DemoView(View):
+    @method_decorator(log_get_params)
     def get(self, request):
         return render(
             request,
             'demo.html'
         )
     
+    @method_decorator(log_post_params)
     @method_decorator(csrf_protect)
     def post(self, request):
         ogrn = request.POST.get('data')
@@ -122,6 +134,7 @@ class DemoView(View):
         return redirect('/demo')
 
 class EditProfile(View):
+    @method_decorator(log_get_params)
     def get(self, request):
         user = get_object_or_404(UserProfile,
                                  user=request.user)
@@ -153,6 +166,7 @@ class EditProfile(View):
                     'rules': Rule.objects.filter(author=user),
                 })                
     
+    @method_decorator(log_post_params)
     @method_decorator(csrf_protect)
     def post(self, request):
         user = get_object_or_404(UserProfile,
@@ -189,6 +203,7 @@ class EditProfile(View):
         profile.save()
         return redirect('/')
     
+@log_get_params
 def admin_view(request):
     if not request.user.is_superuser:
         return HttpResponseForbidden('Access denied')
