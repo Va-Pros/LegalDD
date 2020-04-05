@@ -2,3 +2,4 @@ django
 dictdiffer
 fitz
 PyMuPDF
+selenium
