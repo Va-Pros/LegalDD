@@ -9,8 +9,7 @@ from os import remove
 class Document(models.Model):
     content_type = models.CharField(max_length=100, default='application/octet-stream')
     """
-    TODO:
-        Change upload_to to function that sets name
+    TODO: настроить имя файла
     """
     file = models.FileField(upload_to='')
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='author')
@@ -25,11 +24,24 @@ class UserProfile(models.Model):
     is_lawyer = models.BooleanField(default=False)
     is_curator = models.BooleanField(default=False)
     #group_leader = models.ForeignKey(UserProfile, null=True)
+    
+    def __str__(self):
+        return str(self.user)
+
+
+class Rule(models.Model):
+    name = models.CharField(max_length=100)
+    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
+    # TODO: само правило
+    
+    def __str__(self):
+        return self.name
 
 
 class Profile(models.Model):
     name = models.CharField(max_length=100)
     author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    rules = models.ManyToManyField(Rule)
 
 
 class CaseType(models.Model):
@@ -39,10 +51,6 @@ class CaseType(models.Model):
 class Case(models.Model):
     name = models.CharField(max_length=100)
     caseType = models.ForeignKey(CaseType, on_delete=models.CASCADE)
-
-
-class Rule(models.Model):
-    name = models.CharField(max_length=100)
     
 
 class Report(models.Model):
