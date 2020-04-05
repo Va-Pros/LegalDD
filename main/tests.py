@@ -211,10 +211,9 @@ class UploadTest(TestCase):
     def setUp(self):
         createUsers()
         self.client = Client()
-        
+    
     def tearDownClass():
-        # Удалим загруженный файл
-        os.remove(os.path.join(MEDIA_ROOT, 'runserver.bat'))
+        os.remove(os.path.join(MEDIA_ROOT, 'requirements.txt'))
 
     def testNoUser(self):
         response = self.client.get('/upload/', follow=True)
@@ -233,10 +232,10 @@ class UploadTest(TestCase):
         
     def testUploadCorrect(self):
         self.client.force_login(users['reguser'])
-        with open(os.path.join(BASE_DIR, 'runserver.bat'), 'r') as file:
+        with open(os.path.join(BASE_DIR, 'requirements.txt'), 'r') as file:
             response = self.client.post('/upload/', {'file': file}, follow=True)
         self.assertURLEqual(response.request['PATH_INFO'], '/')
-        file = Document.objects.get(file='runserver.bat')
+        file = Document.objects.get(file='requirements.txt')
         self.assertEqual(file.author, users['reguser'])
         self.assertEqual(file.content_type, 'text/plain')
 
