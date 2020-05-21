@@ -13,42 +13,6 @@ from main.models import *
 from LegalDD.settings import MEDIA_ROOT
 from core.DownloadPDF import downloadPDF
 from main.logger import *
-
-# Служебная страница
-class HelloView(View):
-    @method_decorator(log_get_params)
-    def get(self, request):
-        return render(
-            request,
-            'test.html',
-            {
-                'name': request.user
-            }
-        )
-
-
-class LoginView(View):
-    @method_decorator(log_get_params)
-    def get(self, request):
-        return render(
-            request,
-            'login.html'
-        )
-    
-    @method_decorator(log_post_params)
-    @method_decorator(csrf_protect)
-    def post(self, request):
-        if request.user.is_anonymous:
-            username = request.POST.get('username', '')
-            password = request.POST.get('password', '')
-            if username == '' or password == '':
-                return HttpResponseBadRequest('не заполнено поле login или password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('/')
-            return HttpResponseBadRequest('Неверный логин или пароль')
-        return redirect('/')
     
 
 class UploadDocument(View):
@@ -70,24 +34,6 @@ class UploadDocument(View):
         file.save()
         return redirect('/')
 
-
-@log_post_params
-def logout_view(request):
-    logout(request)
-    return redirect('/')
-
-@log_get_params
-def lk_view(request):
-    user = UserProfile.objects.get(user=request.user)
-    return render(
-        request,
-        'lk.html',
-        {
-            'user': user,
-            'documents': Document.objects.all(),
-            'profiles': Profile.objects.filter(author=user),
-        })
-
 def document_view(request, name):
     file = Document.objects.get(file=name)
     if not (request.user.is_superuser or request.user == file.author):
@@ -96,29 +42,6 @@ def document_view(request, name):
     response['Content-Disposition'] = 'attachment; filename="' + file.file.name + '"'
     return response
 
-# Служебная страница
-class AddUser(View):
-    @method_decorator(log_get_params)
-    def get(self, request):
-        if not request.user.is_superuser:
-            return HttpResponseForbidden('Доступ запрещён')
-        return render(
-            request,
-            'adduser.html'
-        )
-    
-    @method_decorator(log_post_params)
-    @method_decorator(csrf_protect)
-    def post(self, request):
-        if request.POST['password'] != request.POST['repeat']:
-            return HttpResponseBadRequest('Пароли не совпадают')
-        user = User.objects.create_user(request.POST['username'], password=request.POST['password'])
-        user.save()
-        profile = UserProfile(user=user)
-        profile.is_lawyer = (request.POST.get('is_lawyer') is not None)
-        profile.is_curator = (request.POST.get('is_curator') is not None)
-        profile.save()
-        return redirect('/adduser')
 
 # Служебная страница
 class DemoView(View):
@@ -137,76 +60,6 @@ class DemoView(View):
             return HttpResponseBadRequest('Не указано значение')
         downloadPDF(int(ogrn))
         return redirect('/demo')
-
-class EditProfile(View):
-    @method_decorator(log_get_params)
-    def get(self, request):
-        user = get_object_or_404(UserProfile,
-                                 user=request.user)
-        if not user.is_lawyer:
-            return HttpResponseForbidden('Только юристы могут создавать и редактировать профили')
-        if request.GET.get('id') is not None:
-            profile = get_object_or_404(Profile,
-                                        author=user,
-                                        id=request.GET['id'])
-            return render(
-                request,
-                'newProfile.html',
-                {
-                    'id': profile.id,
-                    'name': profile.name,
-                    'profile_rules': profile.rules.all(),
-                    'profile_rule_count': profile.rules.count(),
-                    'rules': Rule.objects.filter(author=user),
-                })
-        else:
-            return render(
-                request,
-                'newProfile.html',
-                {
-                    'id': -1,
-                    'name': "",
-                    'profile_rules': [],
-                    'profile_rule_count': 0,
-                    'rules': Rule.objects.filter(author=user),
-                })                
-    
-    @method_decorator(log_post_params)
-    @method_decorator(csrf_protect)
-    def post(self, request):
-        user = get_object_or_404(UserProfile,
-                                 user=request.user)
-        if not user.is_lawyer:
-            return HttpResponseForbidden('Только юристы могут создавать и редактировать профили')
-        # Считаем правила из запроса и проверим их наличие
-        rule_count = request.POST.get('rule_count')
-        if rule_count is None:
-            return HttpResponseBadRequest('Не указано количество правил.')
-        rules = []
-        for i in range(1, int(rule_count) + 1):
-            rule = request.POST.get('rule' + str(i))
-            if rule is None:
-                return HttpResponseBadRequest('Указано слишком маленькое количество правил.')
-            rule = get_object_or_404(Rule,
-                                     author=user,
-                                     name=rule)
-            rules.append(rule)
-        # Заполним значения модели и сохраним
-        profile_id = request.POST.get('profile_id')
-        if profile_id is not None:
-            profile = get_object_or_404(Profile,
-                                        id=profile_id,
-                                        author=user)
-        else:
-            profile = Profile(author=user)
-        profileName = request.POST.get('name')
-        if profileName is None:
-            return HttpResponseBadRequest('Не указан параметр name.')
-        profile.name = profileName
-        profile.save()
-        profile.rules.set(rules)
-        profile.save()
-        return redirect('/')
 
 # Служебная страница
 @log_get_params
