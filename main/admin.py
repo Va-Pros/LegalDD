@@ -6,7 +6,6 @@ from main.models import Document, Rule, Profile
 class DocumentAdmin(admin.ModelAdmin):
     list_display = [
         'file',
-        'author',
         'content_type',
     ]
     

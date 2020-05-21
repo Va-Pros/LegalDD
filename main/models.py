@@ -12,7 +12,6 @@ class Document(models.Model):
     TODO: настроить имя файла
     """
     file = models.FileField(upload_to='')
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='author')
     
     def delete(self, *args, **kwargs):
         remove(file.name)

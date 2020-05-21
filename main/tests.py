@@ -84,217 +84,26 @@ class Parse_Test(TestCase):
         differents = diff(expected, result)
         self.assertEqual(list(differents), [])
 
-# Create your tests here.
-
-users = dict()
-profiles = dict()
-
-def createUsers():
-    # Обычный пользователь
-    user = User.objects.create_user('reguser', password='regpassword')
-    user.save()
-    users['reguser'] = user
-    profile = UserProfile(user=user)
-    profile.is_lawyer = False
-    profile.save()
-    profiles['reguser'] = profile
-    # Юрист
-    user = User.objects.create_user('lawyer', password='lawpassword')
-    user.save()
-    users['lawyer'] = user
-    profile = UserProfile(user=user)
-    profile.is_lawyer = True
-    profile.save()
-    profiles['lawyer'] = profile
-    # Админ
-    user = User.objects.create_user('hseadmin', password='hsepassword')
-    user.is_staff = True
-    user.is_superuser = True
-    user.save()
-    users['hseadmin'] = user
-    profile = UserProfile(user=user)
-    profile.is_lawyer = True
-    profile.save()
-    profiles['hseadmin'] = profile
-
-class LoginTest(TestCase):
-    def setUp(self):
-        createUsers()
-        self.client = Client()
-
-    def testLoad(self):
-        # Проверка GET запроса
-        response = self.client.get('/accounts/login/')
-        self.assertEqual(response.status_code, 200)
-
-    def testIncorrectForm(self):
-        # Отправка некорректного запроса
-        response = self.client.post('/accounts/login/')
-        self.assertEqual(response.status_code, 400)
-
-    def testIncorrectCredentials(self):
-        # Попытка ввода неверной пары логин-пароль
-        response = self.client.post('/accounts/login/', {'login': 'hacker', 'password': 'pass'})
-        self.assertEqual(response.status_code, 400)
-
-    def testRegular(self):
-        # Попытка входа для пользователя reguser
-        response = self.client.post('/accounts/login/', {'username': 'reguser', 'password': 'regpassword'}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/')
-        self.assertEqual(response.context['user'].user.username, 'reguser')
-
-    def testLawyer(self):
-        # Попытка входа для пользователя lawyer
-        response = self.client.post('/accounts/login/', {'username': 'lawyer', 'password': 'lawpassword'}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/')
-        self.assertEqual(response.context['user'].user.username, 'lawyer')
-
-    def testAdmin(self):
-        # Попытка входа для пользователя hseadmin
-        response = self.client.post('/accounts/login/', {'username': 'hseadmin', 'password': 'hsepassword'}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/')
-        self.assertEqual(response.context['user'].user.username, 'hseadmin')
-
-
-class LogoutTest(TestCase):
-    def setUp(self):
-        createUsers()
-        self.client = Client()
-        
-    def testLogout(self):
-        self.client.force_login(users['reguser'])
-        response = self.client.get('/accounts/logout/', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/accounts/login/')
-
-
-class AdminTest(TestCase):
-    def setUp(self):
-        createUsers()
-        self.client = Client()
-        
-    def testLoginReguser(self):
-        # Попытка входа для пользователя reguser (пример не-администратора, не должен войти)
-        self.client.force_login(users['reguser'])
-        response = self.client.get('/admin/', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/admin/login/')
-        
-    def testLoginHseadmin(self):
-        # Попытка входа для пользователя hseadmin (администратор, должен войти)
-        self.client.force_login(users['hseadmin'])
-        response = self.client.get('/admin/')
-        self.assertEqual(response.status_code, 200)
-    
-    # Остальной интерфейс администратора создан автоматически, его нет смысла тестировать
-
-class LkTest(TestCase):
-    def setUp(self):
-        createUsers()
-        self.client = Client()
-        
-    def testNoUser(self):
-        response = self.client.get('/', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/accounts/login/')
-    
-    def testUser(self):
-        self.client.force_login(users['reguser'])
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)   
-
+# Тесты клиент-серверной связи
 
 class UploadTest(TestCase):
     def setUp(self):
-        createUsers()
         self.client = Client()
     
     def tearDownClass():
         os.remove(os.path.join(MEDIA_ROOT, 'requirements.txt'))
-
-    def testNoUser(self):
-        response = self.client.get('/upload/', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/accounts/login/')
     
     def testUserGet(self):
-        self.client.force_login(users['reguser'])
         response = self.client.get('/upload/')
         self.assertEqual(response.status_code, 200)
     
     def testUploadEmpty(self):
-        self.client.force_login(users['reguser'])
         response = self.client.post('/upload/')
         self.assertEqual(response.status_code, 400)
         
     def testUploadCorrect(self):
-        self.client.force_login(users['reguser'])
         with open(os.path.join(BASE_DIR, 'requirements.txt'), 'r') as file:
             response = self.client.post('/upload/', {'file': file}, follow=True)
         self.assertURLEqual(response.request['PATH_INFO'], '/')
         file = Document.objects.get(file='requirements.txt')
-        self.assertEqual(file.author, users['reguser'])
         self.assertEqual(file.content_type, 'text/plain')
-
-
-class ProfileTest(TestCase):
-    def setUp(self):
-        createUsers()
-        self.client = Client()
-        self.rule = Rule(name='rule',
-                    author=profiles['lawyer'])
-        self.rule.save()
-        self.profile = Profile(name='profile',
-                               author=profiles['reguser'])
-        self.profile.save()
-        self.profile.rules.add(self.rule)
-        self.profile.save()
-    
-    def testNoUser(self):
-        response = self.client.get('/profile/', follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/accounts/login/')
-        
-    def testReguser(self):
-        self.client.force_login(users['reguser'])
-        response = self.client.get('/profile/')
-        self.assertEqual(response.status_code, 403)
-        
-    def testLawyer(self):
-        self.client.force_login(users['lawyer'])
-        response = self.client.get('/profile/')
-        self.assertEqual(response.status_code, 200)
-    
-    def testCreateProfileNoName(self):
-        self.client.force_login(users['lawyer'])
-        response = self.client.post('/profile/', {'rule_count':1, 'rule1':'rule'})
-        self.assertEqual(response.status_code, 400)
-        
-    def testCreateProfileNoRuleCount(self):
-        self.client.force_login(users['lawyer'])
-        response = self.client.post('/profile/', {'name':'name'})
-        self.assertEqual(response.status_code, 400)
-        
-    def testCreateProfileWrongRuleCount(self):
-        self.client.force_login(users['lawyer'])
-        response = self.client.post('/profile/', {'name':'name', 'rule_count':2, 'rule1':'rule'})
-        self.assertEqual(response.status_code, 400)
-    
-    def testCreateProfile(self):
-        self.client.force_login(users['lawyer'])
-        response = self.client.post('/profile/', {'name':'name', 'rule_count':1, 'rule1':'rule'}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertURLEqual(response.request['PATH_INFO'], '/')
-        
-    def testEditProfileGet(self):
-        self.client.force_login(users['lawyer'])
-        response = self.client.get('/profile/', {'profile_id':self.profile.id})
-        self.assertEqual(response.status_code, 200)
-        
-    def testEditProfileWrongId(self):
-        self.client.force_login(users['lawyer'])
-        response = self.client.post('/profile/', {'profile_id':-2, 'name':'name', 'rule_count':1, 'rule1':'rule'})
-        self.assertEqual(response.status_code, 404)
