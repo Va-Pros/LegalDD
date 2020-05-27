@@ -16,19 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from django.views.generic import RedirectView
 from main.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', login_required(lk_view)),
-    path('', RedirectView.as_view(url='login')),
-    path('accounts/login/', LoginView.as_view(), name='login'),
-    path('accounts/logout/', logout_view, name='logout'),
-    path('upload/', login_required(UploadDocument.as_view())),
-    path('documents/<str:name>/', login_required(document_view)),
-    path('adduser/', login_required(AddUser.as_view())),
-    path('demo/', login_required(DemoView.as_view())),
-    path('profile/', login_required(EditProfile.as_view())),
+    path('', DemoView.as_view()),
+    path('upload/', UploadDocument.as_view()),
+    path('documents/<str:name>/', document_view),
     path('admin_urls/', login_required(admin_view)),
 ]

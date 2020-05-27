@@ -12,40 +12,31 @@ class Document(models.Model):
     TODO: настроить имя файла
     """
     file = models.FileField(upload_to='')
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='author')
     
     def delete(self, *args, **kwargs):
         remove(file.name)
         super(Document, self).delete(*args, **kwargs)
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_lawyer = models.BooleanField(default=False)
-    is_curator = models.BooleanField(default=False)
-    #group_leader = models.ForeignKey(UserProfile, null=True)
-    
-    def __str__(self):
-        return str(self.user)
-
-
 class Rule(models.Model):
     name = models.CharField(max_length=100)
-    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
     # TODO: само правило
     
     def __str__(self):
         return self.name
 
 
+"""
+Все модели ниже оставлены на случай, если они понадобятся. В проекте на данный момент не используются
+"""
+
 class Profile(models.Model):
     name = models.CharField(max_length=100)
-    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     rules = models.ManyToManyField(Rule)
 
 
 class CaseType(models.Model):
-    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    pass
 
 
 class Case(models.Model):
@@ -54,7 +45,6 @@ class Case(models.Model):
     
 
 class Report(models.Model):
-    author = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='document_to_check')
     templateDocument = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, blank=True, related_name='template')
     templateProfile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True, related_name='template')
