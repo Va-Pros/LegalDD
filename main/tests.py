@@ -86,24 +86,23 @@ class Parse_Test(TestCase):
 
 # Тесты клиент-серверной связи
 
+
 class UploadTest(TestCase):
     def setUp(self):
         self.client = Client()
     
-    def tearDownClass():
-        os.remove(os.path.join(MEDIA_ROOT, 'requirements.txt'))
+    def tearDown(self):
+        for elem in Document.objects.all():
+            os.remove(os.path.join(MEDIA_ROOT, elem.file.name))      
     
     def testUserGet(self):
         response = self.client.get('/upload/')
         self.assertEqual(response.status_code, 200)
-    
-    def testUploadEmpty(self):
-        response = self.client.post('/upload/')
-        self.assertEqual(response.status_code, 400)
         
     def testUploadCorrect(self):
         with open(os.path.join(BASE_DIR, 'requirements.txt'), 'r') as file:
             response = self.client.post('/upload/', {'file': file}, follow=True)
-        self.assertURLEqual(response.request['PATH_INFO'], '/')
-        file = Document.objects.get(file='requirements.txt')
-        self.assertEqual(file.content_type, 'text/plain')
+        self.assertTrue(response.request['PATH_INFO'].startswith('/edit/'))
+        caseName = response.request['PATH_INFO'][6:-1]
+        case = Case.objects.get(name=caseName)
+        Document.objects.get(case=case)

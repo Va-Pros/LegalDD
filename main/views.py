@@ -47,6 +47,7 @@ class UploadDocument(View):
         return redirect('/edit/' + case.name + '/')
 
 
+@log_get_params
 def document_view(request, name):
     file = Document.objects.get(file=name)
     if not file.isFinished:
@@ -56,6 +57,7 @@ def document_view(request, name):
     return response
 
 
+@log_get_params
 def edit_view(request, name):
     case = get_object_or_404(Case, name=name)
     return render(
@@ -67,6 +69,7 @@ def edit_view(request, name):
         })
 
 
+@log_get_params
 def download_view(request, name):
     case = get_object_or_404(Case, name=name)
     files = Document.objects.filter(case=case)
