@@ -2,36 +2,23 @@
 <head>
     {% load static %}
     <script src="{% static "scripts/edit_pdf.js" %}"></script>
-    <script>
-        function reloadDoc()
-        {
-            setDocument('/documents/' + document.getElementById("selDoc").value + '/')
-        }
-        
-        function loadCurrent()
-        {
-            alert('Пока не поддерживается')
-        }
-        
-        function loadAll()
-        {
-            alert('Пока не поддерживается')
-        }
-    </script>
 </head>
 <body>
     <br/>
     Документ:
-    <select id="selDoc" onChange="reloadDoc()">
+    <select id="selDoc" onChange="reloadDocument()">
     {% for doc in documents %}
         <option value={{doc.file.name}}>{{doc.originalName}}</option>
     {% endfor %}
     </select>
     <br/>
-    <button onclick='loadCurrent()'>Загрузить</button>
-    <button onclick='loadAll()'>Загрузить все</button>
+    <a href="" id="download">Загрузить</a>
+    <a href="/download/{{ caseName }}">Загрузить все</a>
     <br/>
     <iframe id="doc" width="60%" height="70%">Loading</iframe>
-    <script>reloadDoc()</script>
+    <script>
+        init()
+        reloadDocument()
+    </script>
 </body>
 </html>

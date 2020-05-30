@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
 
 import os
+import zipfile
 from threading import Thread
 
 from main.templates import *
@@ -45,6 +46,7 @@ class UploadDocument(View):
         process(files)
         return redirect('/edit/' + case.name + '/')
 
+
 def document_view(request, name):
     file = Document.objects.get(file=name)
     if not file.isFinished:
@@ -60,8 +62,24 @@ def edit_view(request, name):
         request,
         'edit.html',
         {
-            'documents': Document.objects.filter(case=case)
+            'documents': Document.objects.filter(case=case),
+            'caseName': name,
         })
+
+
+def download_view(request, name):
+    case = get_object_or_404(Case, name=name)
+    files = Document.objects.filter(case=case)
+    archName = os.path.join(MEDIA_ROOT, name + '.zip')
+    archive = zipfile.ZipFile(archName, 'w')
+    for file in files:
+        archive.write(os.path.join(MEDIA_ROOT, file.file.name), file.originalName)
+    archive.close()
+    response = HttpResponse(open(archName, 'rb'), 'application/octet-stream')
+    os.remove(archName)
+    response['Content-Disposition'] = 'attachment; filename="' + name + '.zip"'
+    return response
+
 
 # Служебная страница
 class DemoView(View):
@@ -80,6 +98,7 @@ class DemoView(View):
             return HttpResponseBadRequest('Не указано значение')
         downloadPDF(int(ogrn))
         return redirect('/demo')
+
 
 # Служебная страница
 @log_get_params

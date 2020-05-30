@@ -25,4 +25,5 @@ urlpatterns = [
     path('documents/<str:name>/', document_view),
     path('admin_urls/', login_required(admin_view)),
     path('edit/<str:name>/', edit_view),
+    path('download/<str:name>/', download_view),
 ]
