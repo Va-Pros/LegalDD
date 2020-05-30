@@ -7,12 +7,22 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
 
+import os
+from threading import Thread
+
 from main.templates import *
 from main.forms import *
 from main.models import *
 from LegalDD.settings import MEDIA_ROOT
 from core.DownloadPDF import downloadPDF
 from main.logger import *
+
+
+def process(documents):
+    for doc in documents:
+        print('Processing document', doc.file.name)
+        doc.isFinished = True
+        doc.save()
     
 
 class UploadDocument(View):
@@ -25,23 +35,33 @@ class UploadDocument(View):
     
     @method_decorator(log_post_params)
     def post(self, request):
-        form = UploadFileForm(request.POST, request.FILES)
-        if not form.is_valid():
-            return HttpResponseBadRequest('Не удалось загрузить файл')
-        file = form.save(commit=False)
-        file.author = request.user
-        file.content_type = request.FILES.getlist('file')[0].content_type
-        file.save()
-        return redirect('/')
+        case = Case()
+        case.save()
+        files = []
+        for file in request.FILES.items():
+            doc = Document(file=file[1], originalName=file[1], case=case)
+            doc.save()
+            files.append(doc)
+        process(files)
+        return redirect('/edit/' + case.name + '/')
 
 def document_view(request, name):
     file = Document.objects.get(file=name)
-    if not (request.user.is_superuser or request.user == file.author):
-        return HttpResponseForbidden('Вы не имеете доступ к данному файлу')
-    response = HttpResponse("", file.content_type)
+    if not file.isFinished:
+        return HttpResponse('Файл обрабатывается')
+    response = HttpResponse(open(os.path.join(MEDIA_ROOT, name), 'rb'), 'application/pdf')
     response['Content-Disposition'] = 'attachment; filename="' + file.file.name + '"'
     return response
 
+
+def edit_view(request, name):
+    case = get_object_or_404(Case, name=name)
+    return render(
+        request,
+        'edit.html',
+        {
+            'documents': Document.objects.filter(case=case)
+        })
 
 # Служебная страница
 class DemoView(View):

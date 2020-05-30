@@ -1,12 +1,20 @@
 from django.contrib import admin
-from main.models import Document, Rule, Profile
+from main.models import Document, Case, Rule, Profile
 
 # Register your models here.
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
     list_display = [
         'file',
-        'content_type',
+        'originalName',
+        'case',
+        'isFinished',
+    ]
+
+@admin.register(Case)
+class CaseAdmin(admin.ModelAdmin):
+    list_display = [
+        'name',
     ]
     
 @admin.register(Rule)

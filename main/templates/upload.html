@@ -5,7 +5,9 @@
 <body>
     <form method="POST" action="." enctype="multipart/form-data">
         {% csrf_token %}
-           File: <input type="file" name="file"></input><br/>
+        File 1: <input type="file" name="file1"></input><br/>
+        File 2: <input type="file" name="file2"></input><br/>
+        File 3: <input type="file" name="file3"></input><br/>
         <button type="submit" value="submit">Submit</button>
     </form>
 </body>

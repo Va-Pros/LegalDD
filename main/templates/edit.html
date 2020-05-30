@@ -1,0 +1,37 @@
+<html>
+<head>
+    {% load static %}
+    <script src="{% static "scripts/edit_pdf.js" %}"></script>
+    <script>
+        function reloadDoc()
+        {
+            setDocument('/documents/' + document.getElementById("selDoc").value + '/')
+        }
+        
+        function loadCurrent()
+        {
+            alert('Пока не поддерживается')
+        }
+        
+        function loadAll()
+        {
+            alert('Пока не поддерживается')
+        }
+    </script>
+</head>
+<body>
+    <br/>
+    Документ:
+    <select id="selDoc" onChange="reloadDoc()">
+    {% for doc in documents %}
+        <option value={{doc.file.name}}>{{doc.originalName}}</option>
+    {% endfor %}
+    </select>
+    <br/>
+    <button onclick='loadCurrent()'>Загрузить</button>
+    <button onclick='loadAll()'>Загрузить все</button>
+    <br/>
+    <iframe id="doc" width="60%" height="70%">Loading</iframe>
+    <script>reloadDoc()</script>
+</body>
+</html>
