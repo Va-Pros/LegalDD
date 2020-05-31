@@ -1,0 +1,14 @@
+<html>
+<head>
+<meta charset="utf-8">
+    <title>Проверить данные по ИНН/ОГРН</title>
+</head>
+<body>
+    <form action="." method="POST">
+        {% csrf_token %}
+        <input required type="text" name="data" /><br/>
+        <input checked type="radio" name="type">ИНН <input type="radio" name="type">ОГРН<br/>
+        <input type="submit" value="Отправить"/>
+    </form>
+</body>
+</html>

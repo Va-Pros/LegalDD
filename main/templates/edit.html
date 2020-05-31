@@ -1,0 +1,32 @@
+<html>
+<head>
+    {% load static %}
+    <script src="{% static "scripts/edit_pdf.js" %}"></script>
+    <link rel="stylesheet" href="{% static "style/edit.css" %}">
+</head>
+<body>
+    <div class="main">
+        Документ:
+        <select id="selDoc" onChange="reloadDocument()">
+        {% for doc in documents %}
+            <option value={{doc.uid}}>{{doc.originalName}}</option>
+        {% endfor %}
+        </select>
+        <br/>
+        <br/>
+        <iframe id="doc" width="60%" height="70%" class="doc">Loading</iframe><br/>
+        <a href="" id="download">Загрузить</a>
+        <a href="/download/{{ caseName }}">Загрузить все</a><br/>
+        {% if notFoundAny %}
+            Не были найдены ни в одном документе:<br/>
+            {% for line in notFound %}
+                {{line}}<br/>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <script>
+        init()
+        reloadDocument()
+    </script>
+</body>
+</html>

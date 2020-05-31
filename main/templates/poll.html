@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Опросник</title>
+    <link rel="stylesheet" href="{% static "style/poll.css" %}">
+</head>
+<body>
+<form action="/check_poll/" method="POST" class="ui-form">
+    {% csrf_token %}
+    <div class="form-row">
+        <input type="text" id="name" required autocomplete="off"><label for="name">Имя</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="surname" required autocomplete="off"><label for="surname">Фамилия</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" name="OGRN" id="OGRN" required autocomplete="off"><label for="OGRN">ОГРН</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" name="INN" id="INN" required autocomplete="off"><label for="INN">ИНН</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" name="fullName" id="object_name" required autocomplete="off"><label for="object_name">Наименование общества</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" name="shortName" id="cut_name" required autocomplete="off"><label for="cut_name">Сокращенное наименование общества</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="people_count" required autocomplete="off"><label for="people_count">Текущее количество участников</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="function_people_count" required autocomplete="off"><label for="function_people_count">Количество лиц, исполняющих функции ЕИО</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" name="capital" id="capital_size" required autocomplete="off"><label for="capital_size">Размер уставного капитала Общества</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="register_date" required autocomplete="off"><label for="register_date">Дата регистрации ООО</label>
+    </div>
+
+    <label>Укажите способ оплаты уставного капитала</label><br>
+    <label class="just_text"><input name="action1" type="radio">Денежными средствами</label><br>
+    <label class="just_text"><input name="action1" type="radio">Имуществом (имущественными правами)</label><br>
+    <label class="just_text"><input name="action1" type="radio" >Денежными средствами и имуществом (имущественными правами)</label><br><br>
+
+    <label>Укажите органы управления в соответствии с уставом</label><br>
+    <label class="just_text"><input name="action11" type="checkbox" checked>Общее собрание участников/Единственный участник</label><br>
+    <label class="just_text"><input name="action12" type="checkbox">Совет директоров (Наблюдательный совет)</label><br>
+    <label class="just_text"><input name="action13" type="checkbox">Коллегиальный исполнительный орган (Правление, Дирекция)</label><br>
+    <label class="just_text"><input name="action14" type="checkbox">Единоличный исполнительный орган (Генеральный директор, Президент)</label><br>
+    <br>
+
+    <div class="form-row">
+        <input type="text" id="seria" required autocomplete="off"><label for="seria">Серия</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="number"  required autocomplete="off"><label for="number">Номер</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="who" required autocomplete="off"><label for="who">Кем выдан</label>
+    </div>
+
+    <div class="form-row">
+        <input type="text" id="pass_date" required autocomplete="off"><label for="pass_date">Дата выдачи</label>
+    </div>
+
+    <p><input type="submit" value="Отправить"></p>
+</form>
+</body>
+</html>

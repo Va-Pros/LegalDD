@@ -1,0 +1,7 @@
+django
+dictdiffer
+fitz
+PyMuPDF
+selenium
+pymorphy2
+pywin32
