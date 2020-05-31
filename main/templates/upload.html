@@ -2,13 +2,38 @@
 <head>
     <title>Upload file</title>
     <script>
-        var phraseId = 0
+        var phraseCnt = 0
     
         function addPhrase()
         {
             var phrases = document.getElementById("phrases")
-            phrases.innerHTML += "<input required name=phrase" + phraseId++ + "></input><br/>"
-            document.getElementById("phraseCnt").value = phraseId
+            var newItem = document.createElement("input")
+            newItem.name = newItem.id = "phrase" + phraseCnt
+            newItem.required = true
+            phrases.appendChild(newItem)
+            
+            var removeNewItem = document.createElement("button")
+            removeNewItem.type = "button"
+            removeNewItem.innerText = "X"
+            phrases.appendChild(removeNewItem)
+            
+            var newLine = document.createElement("br")
+            phrases.appendChild(newLine)
+            
+            removeNewItem.onclick = function()
+            {
+                newItem.remove()
+                removeNewItem.remove()
+                newLine.remove()
+                var currElemInd = +newItem.name.slice(-1)
+                for (var ind = currElemInd + 1; ind < phraseCnt; ++ind)
+                {
+                    var input = document.getElementById("phrase" + ind)
+                    input.name = input.id = "phrase" + (ind - 1)
+                }
+                document.getElementById("phraseCnt").value = --phraseCnt;
+            }
+            document.getElementById("phraseCnt").value = ++phraseCnt
         }
     </script>
 </head>
