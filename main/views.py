@@ -40,7 +40,7 @@ class UploadDocument(View):
         case.save()
         files = []
         for file in request.FILES.items():
-            doc = Document(file=file[1], originalName=file[1], case=case)
+            doc = Document(file=file[1], originalName=file[0], case=case)
             doc.save()
             files.append(doc)
         process(files)
@@ -67,6 +67,14 @@ def edit_view(request, name):
             'documents': Document.objects.filter(case=case),
             'caseName': name,
         })
+
+
+@log_get_params
+def poll_view(request):
+    return render(
+        request,
+        'poll.html'
+    )
 
 
 @log_get_params
