@@ -1,18 +1,33 @@
 <html>
 <head>
-<title>Upload file</title>
+    <title>Upload file</title>
+    <script>
+        var phraseId = 0
+    
+        function addPhrase()
+        {
+            var phrases = document.getElementById("phrases")
+            phrases.innerHTML += "<input required name=phrase" + phraseId++ + "></input><br/>"
+            document.getElementById("phraseCnt").value = phraseId
+        }
+    </script>
 </head>
 <body>
     Загрузите следующие документы:
     <form method="POST" action="." enctype="multipart/form-data">
         {% csrf_token %}
         Устав:<br/>
-        <input type="file" name="Устав.pdf"></input><br/>
+        <input required type="file" name="Устав.pdf"></input><br/>
         Решение единственного участника о создании общества:<br/>
-        <input type="file" name="Решение единственного участника о создании общества.pdf"></input><br/>
+        <input required type="file" name="Решение единственного участника о создании общества.pdf"></input><br/>
         Приказ о назначении исполнительного органа:<br/>
-        <input type="file" name="Приказ о назначении исполнительного органа.pdf"></input><br/>
-        <button type="submit" value="submit">Submit</button>
+        <input required type="file" name="Приказ о назначении исполнительного органа.pdf"></input><br/>
+        <div id="phrases">
+            
+        </div>
+        <button type="button" onclick="addPhrase()">Добавить</button><br/>
+        <input type="hidden" name="phraseCnt" id="phraseCnt" value=0></input>
+        <button type="submit" value="submit">Загрузить</button>
     </form>
 </body>
 </html>

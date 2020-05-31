@@ -19,6 +19,6 @@ def find_key_words(path, key_words):
                 flag = True
         if not flag:
             not_found.append(key_words[i])
-    document.save("Processed_" + path)
+    document.saveIncr()
     document.close()
     return not_found
