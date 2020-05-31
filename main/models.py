@@ -13,8 +13,10 @@ def gen_rand_str():
         res += choice(alph)
     return res
 
-def gen_rand_name(*args):
-    return gen_rand_str() + '.pdf'
+def gen_rand_name(id, original_name):
+    if original_name.endswith('.pdf'):
+        return gen_rand_str() + '.pdf'
+    return gen_rand_str() + '.docx'
 
 
 class Case(models.Model):
@@ -32,6 +34,7 @@ class String(models.Model):
 class Document(models.Model):
     file = models.FileField(upload_to=gen_rand_name)
     originalName = models.CharField(max_length=256)
+    uid = models.CharField(max_length=16, default=gen_rand_str)
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     isFinished = models.BooleanField(default=False)
     
