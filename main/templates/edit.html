@@ -8,7 +8,7 @@
     Документ:
     <select id="selDoc" onChange="reloadDocument()">
     {% for doc in documents %}
-        <option value={{doc.file.name}}>{{doc.originalName}}</option>
+        <option value={{doc.uid}}>{{doc.originalName}}</option>
     {% endfor %}
     </select>
     <br/>
@@ -16,10 +16,12 @@
     <a href="/download/{{ caseName }}">Загрузить все</a>
     <br/>
     <iframe id="doc" width="60%" height="70%">Loading</iframe><br/>
-    Не были найдены ни в одном документе:<br/>
-    {% for line in notFound %}
-        {{line}}<br/>
-    {% endfor %}
+    {% if notFoundAny %}
+        Не были найдены ни в одном документе:<br/>
+        {% for line in notFound %}
+            {{line}}<br/>
+        {% endfor %}
+    {% endif %}
     <script>
         init()
         reloadDocument()
