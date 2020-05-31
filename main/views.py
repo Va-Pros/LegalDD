@@ -16,14 +16,17 @@ from main.forms import *
 from main.models import *
 from LegalDD.settings import MEDIA_ROOT
 from core.DownloadPDF import downloadPDF
+from core.processing import find_key_words
 from main.logger import *
 
 
-def process(documents):
+def process(documents, phrases):
+    result = set(phrases)
     for doc in documents:
-        print('Processing document', doc.file.name)
+        result &= set(find_key_words(os.path.join(MEDIA_ROOT, doc.file.name), phrases))
         doc.isFinished = True
         doc.save()
+    return result
     
 
 class UploadDocument(View):
@@ -36,14 +39,26 @@ class UploadDocument(View):
     
     @method_decorator(log_post_params)
     def post(self, request):
+        try:
+            phraseCnt = int(request.POST.get('phraseCnt'))
+        except:
+            return HttpResponseBadRequest('Ошибка в запросе')
+        phrases = []
+        for i in range(phraseCnt):
+            phrase = request.POST.get('phrase' + str(i))
+            if phrase is None:
+                return HttpResponseBadRequest('Ошибка в запросе')
+            phrases.append(phrase)
         case = Case()
         case.save()
         files = []
         for file in request.FILES.items():
-            doc = Document(file=file[1], originalName=file[1], case=case)
+            doc = Document(file=file[1], originalName=file[0], case=case)
             doc.save()
             files.append(doc)
-        process(files)
+        result = process(files, phrases)
+        string = String(value='\n'.join(result), case=case)
+        string.save()
         return redirect('/edit/' + case.name + '/')
 
 
@@ -60,13 +75,27 @@ def document_view(request, name):
 @log_get_params
 def edit_view(request, name):
     case = get_object_or_404(Case, name=name)
+    notFound = String.objects.get(case=case)
+    if notFound is None:
+        notFound = []
+    else:
+        notFound = notFound.value.split('\n')   
     return render(
         request,
         'edit.html',
         {
             'documents': Document.objects.filter(case=case),
             'caseName': name,
+            'notFound': notFound,
         })
+
+
+@log_get_params
+def poll_view(request):
+    return render(
+        request,
+        'poll.html'
+    )
 
 
 @log_get_params

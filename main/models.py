@@ -24,6 +24,11 @@ class Case(models.Model):
         return self.name
 
 
+class String(models.Model):
+    value = models.TextField()
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+
+
 class Document(models.Model):
     file = models.FileField(upload_to=gen_rand_name)
     originalName = models.CharField(max_length=256)
