@@ -1,5 +1,6 @@
 <html>
 <head>
+    {% load static %}
     <title>Upload file</title>
     <script>
         var phraseCnt = 0
@@ -15,6 +16,7 @@
             var removeNewItem = document.createElement("button")
             removeNewItem.type = "button"
             removeNewItem.innerText = "X"
+            removeNewItem.class = "button"
             phrases.appendChild(removeNewItem)
             
             var newLine = document.createElement("br")
@@ -36,24 +38,27 @@
             document.getElementById("phraseCnt").value = ++phraseCnt
         }
     </script>
+    <link rel="stylesheet" href="{% static "style/upload.css" %}">
 </head>
 <body>
-    Загрузите следующие документы:
-    <form method="POST" action="." enctype="multipart/form-data">
-        {% csrf_token %}
-        Устав:<br/>
-        <input required type="file" name="Устав.pdf"></input><br/>
-        Решение единственного участника о создании общества:<br/>
-        <input required type="file" name="Решение единственного участника о создании общества.pdf"></input><br/>
-        Приказ о назначении исполнительного органа:<br/>
-        <input required type="file" name="Приказ о назначении исполнительного органа.pdf"></input><br/>
-        Добавьте ключевые фразы для поиска:<br/>
-        <div id="phrases">
-            
-        </div>
-        <button type="button" onclick="addPhrase()">Добавить</button><br/>
-        <input type="hidden" name="phraseCnt" id="phraseCnt" value=0></input>
-        <button type="submit" value="submit">Загрузить</button>
-    </form>
+    <div class="main">
+        <h3>Загрузите следующие документы:</h3>
+        <form method="POST" action="." enctype="multipart/form-data">
+            {% csrf_token %}
+            Устав:<br/>
+            <input required type="file" name="Устав.pdf" class="file"></input><br/>
+            Решение единственного участника о создании общества:<br/>
+            <input required type="file" name="Решение единственного участника о создании общества.pdf" class="file"></input><br/>
+            Приказ о назначении исполнительного органа:<br/>
+            <input required type="file" name="Приказ о назначении исполнительного органа.pdf" class="file"></input><br/>
+            <h3>Фразы для поиска:</h3>
+            <div id="phrases">
+                
+            </div>
+            <button type="button" onclick="addPhrase()">Добавить</button><br/>
+            <input type="hidden" name="phraseCnt" id="phraseCnt" value=0></input>
+            <button type="submit" value="submit">Загрузить</button>
+        </form>
+    </div>
 </body>
 </html>
