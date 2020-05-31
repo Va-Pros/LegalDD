@@ -34,6 +34,7 @@ class String(models.Model):
 class Document(models.Model):
     file = models.FileField(upload_to=gen_rand_name)
     originalName = models.CharField(max_length=256)
+    uid = models.CharField(max_length=16, default=gen_rand_str)
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
     isFinished = models.BooleanField(default=False)
     

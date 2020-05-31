@@ -20,17 +20,17 @@ from core.processing import find_key_phrases
 from main.logger import *
 
 
-def process(documents, phrases):
+def process(string, documents, phrases):
     result = set(phrases)
     for doc in documents:
-        print(doc[1])
         result &= set(find_key_phrases(os.path.join(MEDIA_ROOT, doc[0].file.name), phrases, doc[1]))
         doc[0].isFinished = True
-        if doc[1] != '/application/pdf':
+        if doc[1] != 'application/pdf':
             name = doc[0].file.name
             doc[0].file.name = '.'.join(name.split('.')[:-1]) + '.pdf'
         doc[0].save()
-    return result
+    string.value = '\n'.join(result)
+    string.save()
     
 
 class UploadDocument(View):
@@ -63,18 +63,22 @@ class UploadDocument(View):
                 doc.file.name += '.docx'
             doc.save()
             files.append((doc, fileType))
-        result = process(files, phrases)
-        string = String(value='\n'.join(result), case=case)
+        string = String(value='', case=case)
         string.save()
+        thr = Thread(target=process, args=(string, files, phrases))
+        thr.start()
         return redirect('/edit/' + case.name + '/')
 
 
 @log_get_params
-def document_view(request, name):
-    file = Document.objects.get(file=name)
+def document_view(request, uid):
+    file = get_object_or_404(Document, uid=uid)
     if not file.isFinished:
-        return HttpResponse('Файл обрабатывается')
-    response = HttpResponse(open(os.path.join(MEDIA_ROOT, name), 'rb'), 'application/pdf')
+        return render(
+            request,
+            'reload_doc.html'
+            )
+    response = HttpResponse(open(os.path.join(MEDIA_ROOT, file.file.name), 'rb'), 'application/pdf')
     response['Content-Disposition'] = 'attachment; filename="' + file.file.name + '"'
     return response
 

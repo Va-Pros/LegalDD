@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', poll_view),
     path('upload/', UploadDocument.as_view()),
-    path('documents/<str:name>/', document_view),
+    path('documents/<str:uid>/', document_view),
     path('admin_urls/', login_required(admin_view)),
     path('edit/<str:name>/', edit_view),
     path('download/<str:name>/', download_view),
