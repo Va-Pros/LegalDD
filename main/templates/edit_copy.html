@@ -1,0 +1,14 @@
+{% load static %}
+<script src='{% static "scripts/edit_pdf.js" %}'></script>
+<script src='https://pdftron.s3.amazonaws.com/webviewer/5.1.0/lib/webviewer.min.js'> </script>
+
+ <div id='viewer' style='width: 1024px; height: 600px;'> </div>
+ <script>
+  const viewerElement = document.getElementById('viewer');
+  WebViewer({
+    path: 'https://pdftron.s3.amazonaws.com/webviewer/5.1.0/lib',
+    initialDoc: 'localhost:8000/documents/sample.pdf', // replace with your own PDF file
+  }, viewerElement).then((instance) => {
+    
+  });
+ </script>

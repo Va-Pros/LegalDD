@@ -2,16 +2,38 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from os import remove
+from random import choice
 
 # Create your models here.
 
+def gen_rand_str():
+    res = ""
+    alph = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM'
+    for i in range(16):
+        res += choice(alph)
+    return res
+
+def gen_rand_name(*args):
+    return gen_rand_str() + '.pdf'
+
+
+class Case(models.Model):
+    name = models.CharField(max_length=16, default=gen_rand_str)
+    
+    def __str__(self):
+        return self.name
+
+
+class String(models.Model):
+    value = models.TextField()
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+
 
 class Document(models.Model):
-    content_type = models.CharField(max_length=100, default='application/octet-stream')
-    """
-    TODO: настроить имя файла
-    """
-    file = models.FileField(upload_to='')
+    file = models.FileField(upload_to=gen_rand_name)
+    originalName = models.CharField(max_length=256)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    isFinished = models.BooleanField(default=False)
     
     def delete(self, *args, **kwargs):
         remove(file.name)
@@ -39,9 +61,9 @@ class CaseType(models.Model):
     pass
 
 
-class Case(models.Model):
-    name = models.CharField(max_length=100)
-    caseType = models.ForeignKey(CaseType, on_delete=models.CASCADE)
+#class Case(models.Model):
+#    name = models.CharField(max_length=100)
+#    caseType = models.ForeignKey(CaseType, on_delete=models.CASCADE)
     
 
 class Report(models.Model):
