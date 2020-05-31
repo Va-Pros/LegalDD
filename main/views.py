@@ -98,7 +98,7 @@ class UploadDocument(View):
 @log_get_params
 def document_view(request, uid):
     file = get_object_or_404(Document, uid=uid)
-    if True or not file.isFinished:
+    if not file.isFinished:
         return render(
             request,
             'reload_doc.html'
