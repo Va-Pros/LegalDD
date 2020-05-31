@@ -2,9 +2,24 @@
     box-sizing: border-box;
 }
 
+label{
+    left: 13px;
+    color: #9d959d;
+    font-size: 20px;
+}
+
 body {
     background: #e6f4fd;
     font-family: 'Roboto', sans-serif;
+}
+
+input{
+    font-size: 18px;
+}
+
+.just_text{
+    color: #111111;
+    font-size: 15px;
 }
 
 .ui-form {

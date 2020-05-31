@@ -16,6 +16,8 @@ from main.forms import *
 from main.models import *
 from LegalDD.settings import MEDIA_ROOT
 from core.DownloadPDF import downloadPDF
+from core.Parsing import parsing
+from core.check_form import check_form
 from core.processing import find_key_phrases
 from main.logger import *
 
@@ -31,6 +33,29 @@ def process(string, documents, phrases):
         doc[0].save()
     string.value = '\n'.join(result)
     string.save()
+
+
+@log_post_params
+@csrf_protect
+def check_poll(request):
+    ogrn = request.POST.get("OGRN")
+    data = {"ОГРН":ogrn,
+            "ИНН":request.POST.get("INN"),
+            "Полное наименование": request.POST.get("fullName"),
+            "Сокращенное наименование":request.POST.get("shortName"),
+            "Размер уставного капитала":request.POST.get("capital")}
+    print(data.values())
+    for elem in data.values():
+        if elem is None:
+            return HttpResponseBadRequest('Часть полей не заполнена')
+    name = os.path.join(MEDIA_ROOT, ogrn + '_result.pdf')
+    if not downloadPDF(ogrn, name):
+        return HttpResponseBadRequest('Не удалось найти огранизацию, проверьте введённый ОГРН')
+    parsed = parsing(name)
+    os.remove(name)
+    if check_form(data, parsed):
+        return redirect('/upload')
+    return HttpResponseBadRequest('Данные не соответствуют данным, полученным из ЕГРЮЛ на основе введённого ОГРН')
     
 
 class UploadDocument(View):
@@ -123,25 +148,6 @@ def download_view(request, name):
     os.remove(archName)
     response['Content-Disposition'] = 'attachment; filename="' + name + '.zip"'
     return response
-
-
-# Служебная страница
-class DemoView(View):
-    @method_decorator(log_get_params)
-    def get(self, request):
-        return render(
-            request,
-            'demo.html'
-        )
-    
-    @method_decorator(log_post_params)
-    @method_decorator(csrf_protect)
-    def post(self, request):
-        ogrn = request.POST.get('data')
-        if ogrn is None:
-            return HttpResponseBadRequest('Не указано значение')
-        downloadPDF(int(ogrn))
-        return redirect('/demo')
 
 
 # Служебная страница
