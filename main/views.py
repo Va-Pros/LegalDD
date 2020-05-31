@@ -16,16 +16,20 @@ from main.forms import *
 from main.models import *
 from LegalDD.settings import MEDIA_ROOT
 from core.DownloadPDF import downloadPDF
-from core.processing import find_key_words
+from core.processing import find_key_phrases
 from main.logger import *
 
 
 def process(documents, phrases):
     result = set(phrases)
     for doc in documents:
-        result &= set(find_key_words(os.path.join(MEDIA_ROOT, doc.file.name), phrases))
-        doc.isFinished = True
-        doc.save()
+        print(doc[1])
+        result &= set(find_key_phrases(os.path.join(MEDIA_ROOT, doc[0].file.name), phrases, doc[1]))
+        doc[0].isFinished = True
+        if doc[1] != '/application/pdf':
+            name = doc[0].file.name
+            doc[0].file.name = '.'.join(name.split('.')[:-1]) + '.pdf'
+        doc[0].save()
     return result
     
 
@@ -54,8 +58,11 @@ class UploadDocument(View):
         files = []
         for file in request.FILES.items():
             doc = Document(file=file[1], originalName=file[0], case=case)
+            fileType = request.FILES.get(file[0]).content_type
+            if fileType != 'application/pdf':
+                doc.file.name += '.docx'
             doc.save()
-            files.append(doc)
+            files.append((doc, fileType))
         result = process(files, phrases)
         string = String(value='\n'.join(result), case=case)
         string.save()
@@ -77,16 +84,17 @@ def edit_view(request, name):
     case = get_object_or_404(Case, name=name)
     notFound = String.objects.get(case=case)
     if notFound is None:
-        notFound = []
+        notFoundArr = []
     else:
-        notFound = notFound.value.split('\n')   
+        notFoundArr = notFound.value.split('\n')   
     return render(
         request,
         'edit.html',
         {
             'documents': Document.objects.filter(case=case),
             'caseName': name,
-            'notFound': notFound,
+            'notFoundAny': notFound.value != '',
+            'notFound': notFoundArr,
         })
 
 

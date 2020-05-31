@@ -3,26 +3,27 @@ import pymorphy2
 import string
 import pathlib
 import win32com.client
+import pythoncom
 
 
-# путь и массив ключевых фраз
-def find_key_phrases(path_str, key_phrases):
+# путь, массив ключевых фраз и MIME-тип файла
+def find_key_phrases(path_str, key_phrases, file_type):
+    pythoncom.CoInitializeEx(0)
     # ненайденные фразы
     not_found = []
     morph = pymorphy2.MorphAnalyzer()
     # нужен для создания обработанного файла в той же директории
     path = pathlib.Path(path_str).resolve()
-    if(path.suffix != ".pdf"):
-        if(path.suffix == ".doc" or path.suffix == ".docx"):
-            # конвертация в пдф
-            # 17 значит pdf
-            wdFormatPDF = 17
-            word = win32com.client.Dispatch('Word.Application')
-            word_doc = word.Documents.Open(str(path))
-            path = pathlib.Path(str(path.parent/path.stem) + ".pdf")
-            word_doc.SaveAs(str(path), wdFormatPDF)
-            word_doc.Close()
-            word.Quit()
+    if(file_type != 'application/pdf'):
+        # конвертация в пдф
+        # 17 значит pdf
+        wdFormatPDF = 17
+        word = win32com.client.Dispatch('Word.Application')
+        word_doc = word.Documents.Open(str(path))
+        path = pathlib.Path(str(path.parent/path.stem) + ".pdf")
+        word_doc.SaveAs(str(path), wdFormatPDF)
+        word_doc.Close()
+        word.Quit()
     document = fitz.open(path)
     # пунктуация, которую будем удалять
     punctuation = str.maketrans(dict.fromkeys(string.punctuation))
@@ -100,3 +101,4 @@ def find_key_phrases(path_str, key_phrases):
     document.saveIncr()
     document.close()
     return not_found
+

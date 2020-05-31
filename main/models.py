@@ -13,8 +13,10 @@ def gen_rand_str():
         res += choice(alph)
     return res
 
-def gen_rand_name(*args):
-    return gen_rand_str() + '.pdf'
+def gen_rand_name(id, original_name):
+    if original_name.endswith('.pdf'):
+        return gen_rand_str() + '.pdf'
+    return gen_rand_str() + '.docx'
 
 
 class Case(models.Model):
