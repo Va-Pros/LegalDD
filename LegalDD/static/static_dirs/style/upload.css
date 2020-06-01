@@ -18,3 +18,8 @@ body {
     margin: 5px;
     margin-left: 20px
 }
+
+.docblock {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

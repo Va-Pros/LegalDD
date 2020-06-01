@@ -26,11 +26,6 @@ class Case(models.Model):
         return self.name
 
 
-class String(models.Model):
-    value = models.TextField()
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
-
-
 class Document(models.Model):
     file = models.FileField(upload_to=gen_rand_name)
     originalName = models.CharField(max_length=256)
@@ -41,6 +36,11 @@ class Document(models.Model):
     def delete(self, *args, **kwargs):
         remove(file.name)
         super(Document, self).delete(*args, **kwargs)
+
+
+class String(models.Model):
+    value = models.TextField()
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True)
 
 
 class Rule(models.Model):

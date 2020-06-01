@@ -4,3 +4,5 @@
 **/static_root
 # Файл логов
 log.txt
+# Загруженные документы
+LegalDD/documents

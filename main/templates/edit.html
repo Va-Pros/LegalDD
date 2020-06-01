@@ -17,12 +17,9 @@
         <iframe id="doc" width="60%" height="70%" class="doc">Loading</iframe><br/>
         <a href="" id="download">Загрузить</a>
         <a href="/download/{{ caseName }}">Загрузить все</a><br/>
-        {% if notFoundAny %}
+        <div id="notFound" style="visibility: hidden">
             Не были найдены ни в одном документе:<br/>
-            {% for line in notFound %}
-                {{line}}<br/>
-            {% endfor %}
-        {% endif %}
+        </div>
     </div>
     <script>
         init()
