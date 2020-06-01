@@ -10,6 +10,7 @@ from django.utils.decorators import method_decorator
 import os
 import zipfile
 from threading import Thread
+import json
 
 from main.templates import *
 from main.forms import *
@@ -22,17 +23,18 @@ from core.processing import find_key_phrases
 from main.logger import *
 
 
-def process(string, documents, phrases):
-    result = set(phrases)
-    for doc in documents:
-        result &= set(find_key_phrases(os.path.join(MEDIA_ROOT, doc[0].file.name), phrases, doc[1]))
-        doc[0].isFinished = True
-        if doc[1] != 'application/pdf':
-            name = doc[0].file.name
-            doc[0].file.name = '.'.join(name.split('.')[:-1]) + '.pdf'
-        doc[0].save()
-    string.value = '\n'.join(result)
-    string.save()
+def process(documents, phrases):
+    for i in range(len(documents)):
+        doc, ext = documents[i]
+        result = find_key_phrases(os.path.join(MEDIA_ROOT, doc.file.name), phrases[i], ext)
+        for phrase in result:
+            string = String(value=phrase, document=doc)
+            string.save()
+        doc.isFinished = True
+        if ext != 'application/pdf':
+            name = doc.file.name
+            doc.file.name = '.'.join(name.split('.')[:-1]) + '.pdf'
+        doc.save()
 
 
 @log_post_params
@@ -63,21 +65,32 @@ class UploadDocument(View):
     def get(self, request):
         return render(
             request,
-            'upload.html'
-        )
+            'upload.html',
+            {
+                'docCnt': 3,
+                'documents': ['Устав', 'Решение единственного участника о создании общества', 'Приказ о назначении исполнительного органа'],
+            })
     
     @method_decorator(log_post_params)
     def post(self, request):
         try:
-            phraseCnt = int(request.POST.get('phraseCnt'))
+            doc_cnt = int(request.POST.get('docCnt'))
         except:
             return HttpResponseBadRequest('Ошибка в запросе')
-        phrases = []
-        for i in range(phraseCnt):
-            phrase = request.POST.get('phrase' + str(i))
-            if phrase is None:
+        phrases = [[] for i in range(doc_cnt)]
+        for i in range(doc_cnt):
+            i_str = str(i + 1)
+            try:
+                phrase_cnt = int(request.POST.get(i_str + '_phraseCnt'))
+            except:
+                print('No phraseCnt for i', i)
                 return HttpResponseBadRequest('Ошибка в запросе')
-            phrases.append(phrase)
+            for j in range(phrase_cnt):
+                phrase = request.POST.get(i_str + '_phrase' + str(j))
+                if phrase is None:
+                    print('Failed phrase lookup for i', i, 'j', j)
+                    return HttpResponseBadRequest('Ошибка в запросе')
+                phrases[i].append(phrase)
         case = Case()
         case.save()
         files = []
@@ -88,10 +101,9 @@ class UploadDocument(View):
                 doc.file.name += '.docx'
             doc.save()
             files.append((doc, fileType))
-        string = String(value='', case=case)
-        string.save()
-        thr = Thread(target=process, args=(string, files, phrases))
-        thr.start()
+        #thr = Thread(target=process, args=(files, phrases))
+        #thr.start()
+        process(files, phrases)
         return redirect('/edit/' + case.name + '/')
 
 
@@ -109,21 +121,23 @@ def document_view(request, uid):
 
 
 @log_get_params
+def string_view(request, uid):
+    document = get_object_or_404(Document, uid=uid)
+    strings = String.objects.filter(document=document)
+    return HttpResponse(json.dumps([s.value for s in strings]), 'application/json')
+
+
+@log_get_params
 def edit_view(request, name):
     case = get_object_or_404(Case, name=name)
-    notFound = String.objects.get(case=case)
-    if notFound is None:
-        notFoundArr = []
-    else:
-        notFoundArr = notFound.value.split('\n')   
     return render(
         request,
         'edit.html',
         {
             'documents': Document.objects.filter(case=case),
             'caseName': name,
-            'notFoundAny': notFound.value != '',
-            'notFound': notFoundArr,
+            #'notFoundAny': notFound.value != '',
+            #'notFound': notFoundArr,
         })
 
 

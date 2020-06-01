@@ -20,3 +20,8 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
+
+.main p {
+    margin: 5px;
+    margin-left: 10px;
+}

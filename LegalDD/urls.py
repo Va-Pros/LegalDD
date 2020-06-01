@@ -27,4 +27,5 @@ urlpatterns = [
     path('edit/<str:name>/', edit_view),
     path('download/<str:name>/', download_view),
     path('check_poll/', check_poll),
+    path('getstrings/<str:uid>/', string_view),
 ]
